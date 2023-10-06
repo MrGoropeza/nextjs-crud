@@ -1,0 +1,3 @@
+.toolbar {
+  @apply flex flex-wrap justify-between gap-2 overflow-auto bg-[#1e1e1e];
+}

@@ -1,0 +1,26 @@
+.crud-table :global .p-datatable-wrapper {
+  @apply flex-grow bg-[#1e1e1e];
+}
+
+.crud-table
+  :global
+  .p-datatable-wrapper
+  .p-datatable-table
+  .p-datatable-tbody
+  .p-datatable-emptymessage
+  > td {
+  @apply text-center align-middle;
+}
+
+.crud-table
+  :global
+  .p-datatable-wrapper
+  .p-datatable-table
+  .p-datatable-tbody
+  > tr {
+  @apply max-h-min;
+}
+
+.crud-table {
+  @apply flex flex-grow flex-col;
+}
