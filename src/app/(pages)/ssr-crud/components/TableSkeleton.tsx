@@ -26,39 +26,40 @@ const TableSkeleton = ({ rows, page, sortField, sortOrder }: Props) => {
     >
       <Column
         header="ID"
-        body={<Skeleton height="19px" />}
+        body={<Skeleton height="48px" />}
         field="id"
         sortable
         sortableDisabled
       />
       <Column
         header="Title"
-        body={<Skeleton height="19px" />}
+        body={<Skeleton height="48px" />}
         field="title"
         sortable
         sortableDisabled
       />
       <Column
         header="Description"
-        body={<Skeleton height="19px" />}
+        body={<Skeleton height="48px" />}
         field="description"
         sortable
         sortableDisabled
       />
       <Column
         header="Created"
-        body={<Skeleton height="19px" />}
+        body={<Skeleton height="48px" />}
         field="created"
         sortable
         sortableDisabled
       />
       <Column
         header="Updated"
-        body={<Skeleton height="19px" />}
+        body={<Skeleton height="48px" />}
         field="updated"
         sortable
         sortableDisabled
       />
+      <Column body={<Skeleton height="48px" />} />
     </DataTable>
   );
 };

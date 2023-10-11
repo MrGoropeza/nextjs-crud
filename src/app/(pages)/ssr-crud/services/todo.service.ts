@@ -20,7 +20,7 @@ export const getTodos = async ({
   params.set("perPage", `${rows}`);
   params.set("sort", sort ?? "id");
 
-  // await new Promise<Response>((resolve) => setTimeout(resolve, 2000));
+  await new Promise<Response>((resolve) => setTimeout(resolve, 2000));
 
   const res = await fetch(
     `${API_URL}/${ApiEndpoints.Todos}?${params.toString()}`,
@@ -31,4 +31,28 @@ export const getTodos = async ({
   const data: ApiListPageResponse<Todo> = await res.json();
 
   return AdapterListPage(data, AdapterTodo);
+};
+
+export const getTodo = async (id: string): Promise<Todo> => {
+  await new Promise<Response>((resolve) => setTimeout(resolve, 2000));
+
+  const res = await fetch(`${API_URL}/${ApiEndpoints.Todos}/${id}`);
+
+  if (!res.ok) throw new Error(JSON.stringify(await res.json(), undefined, 4));
+
+  const data: Todo = await res.json();
+
+  return AdapterTodo(data);
+};
+
+export const deleteTodo = async (id: string) => {
+  await new Promise<Response>((resolve) => setTimeout(resolve, 2000));
+
+  const res = await fetch(`${API_URL}/${ApiEndpoints.Todos}/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) throw new Error(JSON.stringify(await res.json(), undefined, 4));
+
+  return res;
 };

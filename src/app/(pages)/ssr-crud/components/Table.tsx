@@ -4,12 +4,14 @@ import dayjs from "dayjs";
 import { Pencil, Trash } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "primereact/button";
-import { Column } from "primereact/column";
+import { Column, ColumnBodyOptions } from "primereact/column";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import {
   DataTable,
   DataTablePageEvent,
   DataTableSortEvent,
 } from "primereact/datatable";
+import { deleteTodo } from "../services/todo.service";
 import { Todo } from "../types/todo.type";
 
 type Props = {
@@ -33,21 +35,37 @@ const SSRCrudTable = ({
 }: Props) => {
   const router = useRouter();
   const pathName = usePathname();
+  const params = new URLSearchParams(searchParams);
 
-  const dateTemplate = (field: keyof Todo) => (data: Todo) =>
-    dayjs(data[field]).format("DD/MM/YYYY HH:mm");
+  const dateTemplate = (data: Todo, col: ColumnBodyOptions) =>
+    dayjs(data[col.field as keyof Todo]).format("DD/MM/YYYY HH:mm");
 
   const actionsTemplate = (data: Todo) => {
+    const handleEdit = () =>
+      router.push(`/ssr-crud/${data.id}?${params.toString()}`);
+
+    const handleDelete = () =>
+      confirmDialog({
+        message: "Are you sure you want to delete this item?",
+        header: "Confirm",
+        icon: "pi pi-exclamation-triangle",
+        accept: async () => {
+          const res = await deleteTodo(data.id);
+
+          console.log(res);
+        },
+        reject: () => {},
+      });
+
     return (
       <div className="flex max-w-min gap-2">
-        <Button severity="info" icon={<Pencil />} />
-        <Button severity="danger" icon={<Trash />} />
+        <Button severity="info" icon={<Pencil />} onClick={handleEdit} />
+        <Button severity="danger" icon={<Trash />} onClick={handleDelete} />
       </div>
     );
   };
 
   const handlePage = (e: DataTablePageEvent) => {
-    const params = new URLSearchParams(searchParams);
     params.set("page", `${e.first / e.rows + 1}`);
     params.set("rows", `${e.rows}`);
 
@@ -55,7 +73,6 @@ const SSRCrudTable = ({
   };
 
   const handleSort = (e: DataTableSortEvent) => {
-    const params = new URLSearchParams(searchParams);
     if (!e.sortField && !e.sortOrder) {
       params.delete("sortField");
       params.delete("sortOrder");
@@ -70,37 +87,58 @@ const SSRCrudTable = ({
   };
 
   return (
-    <DataTable
-      value={data}
-      first={first}
-      rows={rows}
-      totalRecords={totalRecords}
-      sortField={sortField}
-      sortOrder={sortOrder}
-      onPage={handlePage}
-      onSort={handleSort}
-      rowsPerPageOptions={[5, 10, 15]}
-      lazy
-      paginator
-      removableSort
-    >
-      <Column header="ID" field="id" sortable />
-      <Column header="Title" field="title" sortable />
-      <Column header="Description" field="description" sortable />
-      <Column
-        header="Created"
-        field="created"
-        body={dateTemplate("created")}
-        sortable
-      />
-      <Column
-        header="Updated"
-        field="updated"
-        body={dateTemplate("updated")}
-        sortable
-      />
-      <Column body={actionsTemplate} />
-    </DataTable>
+    <>
+      <DataTable
+        value={data}
+        first={first}
+        rows={rows}
+        totalRecords={totalRecords}
+        sortField={sortField}
+        sortOrder={sortOrder}
+        onPage={handlePage}
+        onSort={handleSort}
+        rowsPerPageOptions={[5, 10, 15]}
+        lazy
+        paginator
+        removableSort
+      >
+        <Column
+          className="max-w-0 overflow-hidden"
+          header="ID"
+          field="id"
+          sortable
+        />
+        <Column
+          className="max-w-0 overflow-hidden"
+          header="Title"
+          field="title"
+          sortable
+        />
+        <Column
+          className="max-w-0 overflow-hidden"
+          header="Description"
+          field="description"
+          sortable
+        />
+        <Column
+          className="max-w-0 overflow-hidden"
+          header="Created"
+          field="created"
+          body={dateTemplate}
+          sortable
+        />
+        <Column
+          className="max-w-0 overflow-hidden"
+          header="Updated"
+          field="updated"
+          body={dateTemplate}
+          sortable
+        />
+        <Column className="w-0 min-w-fit" body={actionsTemplate} />
+      </DataTable>
+
+      <ConfirmDialog />
+    </>
   );
 };
 
