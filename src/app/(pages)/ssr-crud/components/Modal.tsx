@@ -7,11 +7,10 @@ import { Todo } from "../types/todo.type";
 
 interface Props {
   children?: ReactNode;
-  todo: Todo;
-  maximized?: boolean;
+  todo?: Todo;
 }
 
-const Modal = ({ children, todo, maximized }: Props) => {
+const Modal = ({ children, todo }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -19,12 +18,19 @@ const Modal = ({ children, todo, maximized }: Props) => {
   const shouldShowModal = pathname.includes("/ssr-crud/");
   if (!shouldShowModal) return null;
 
+  const handleHide = async () => {
+    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
+    router.push(`/ssr-crud?${searchParams.toString()}`);
+  };
+
   return (
     <Dialog
-      header={`Edit "${todo.title}"`}
+      header={`${todo ? `Edit "${todo.title}"` : "Add Todo"} `}
       visible
-      maximized={maximized}
-      onHide={() => router.push(`/ssr-crud?${searchParams.toString()}`)}
+      resizable={false}
+      draggable={false}
+      onHide={handleHide}
     >
       {children}
     </Dialog>

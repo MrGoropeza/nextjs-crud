@@ -1,8 +1,8 @@
 "use client";
 
 import dayjs from "dayjs";
-import { Pencil, Trash } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { AlertTriangle, Pencil, RefreshCcw, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "primereact/button";
 import { Column, ColumnBodyOptions } from "primereact/column";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
@@ -11,6 +11,10 @@ import {
   DataTablePageEvent,
   DataTableSortEvent,
 } from "primereact/datatable";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { ProgressBar } from "primereact/progressbar";
+import { useState } from "react";
 import { deleteTodo } from "../services/todo.service";
 import { Todo } from "../types/todo.type";
 
@@ -33,8 +37,9 @@ const SSRCrudTable = ({
   sortField,
   sortOrder,
 }: Props) => {
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
-  const pathName = usePathname();
   const params = new URLSearchParams(searchParams);
 
   const dateTemplate = (data: Todo, col: ColumnBodyOptions) =>
@@ -48,31 +53,45 @@ const SSRCrudTable = ({
       confirmDialog({
         message: "Are you sure you want to delete this item?",
         header: "Confirm",
-        icon: "pi pi-exclamation-triangle",
+        icon: <AlertTriangle />,
         accept: async () => {
-          const res = await deleteTodo(data.id);
+          setLoading(true);
 
-          console.log(res);
+          await deleteTodo(data.id).finally(() => setLoading(false));
+
+          await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+          await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
+
+          router.replace(`/ssr-crud?${params.toString()}`);
         },
         reject: () => {},
       });
 
     return (
-      <div className="flex max-w-min gap-2">
+      <div className="flex gap-2">
         <Button severity="info" icon={<Pencil />} onClick={handleEdit} />
         <Button severity="danger" icon={<Trash />} onClick={handleDelete} />
       </div>
     );
   };
 
-  const handlePage = (e: DataTablePageEvent) => {
+  const headerTemplate = () => (
+    <header className="grid grid-cols-[auto_auto_1fr_auto] gap-4">
+      <Button icon={<RefreshCcw />} onClick={handleRefresh} />
+      <Button label="Create" severity="success" onClick={handleCreate} />
+      <InputText className="col-[4]" placeholder="Search..." />
+    </header>
+  );
+
+  const handlePage = async (e: DataTablePageEvent) => {
     params.set("page", `${e.first / e.rows + 1}`);
     params.set("rows", `${e.rows}`);
 
-    router.replace(`${pathName}?${params.toString()}`);
+    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    router.replace(`/ssr-crud?${params.toString()}`);
   };
 
-  const handleSort = (e: DataTableSortEvent) => {
+  const handleSort = async (e: DataTableSortEvent) => {
     if (!e.sortField && !e.sortOrder) {
       params.delete("sortField");
       params.delete("sortOrder");
@@ -83,7 +102,17 @@ const SSRCrudTable = ({
       params.set("sortOrder", `${e.sortOrder === -1 ? "desc" : "asc"}`);
     }
 
-    router.replace(`${pathName}?${params.toString()}`);
+    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    router.replace(`/ssr-crud?${params.toString()}`);
+  };
+
+  const handleRefresh = async () => {
+    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    router.replace(`/ssr-crud?${params.toString()}`);
+  };
+
+  const handleCreate = async () => {
+    router.replace(`/ssr-crud/create?${params.toString()}`);
   };
 
   return (
@@ -98,46 +127,29 @@ const SSRCrudTable = ({
         onPage={handlePage}
         onSort={handleSort}
         rowsPerPageOptions={[5, 10, 15]}
+        header={headerTemplate}
         lazy
         paginator
         removableSort
       >
-        <Column
-          className="max-w-0 overflow-hidden"
-          header="ID"
-          field="id"
-          sortable
-        />
-        <Column
-          className="max-w-0 overflow-hidden"
-          header="Title"
-          field="title"
-          sortable
-        />
-        <Column
-          className="max-w-0 overflow-hidden"
-          header="Description"
-          field="description"
-          sortable
-        />
-        <Column
-          className="max-w-0 overflow-hidden"
-          header="Created"
-          field="created"
-          body={dateTemplate}
-          sortable
-        />
-        <Column
-          className="max-w-0 overflow-hidden"
-          header="Updated"
-          field="updated"
-          body={dateTemplate}
-          sortable
-        />
-        <Column className="w-0 min-w-fit" body={actionsTemplate} />
+        <Column header="ID" field="id" sortable />
+        <Column header="Title" field="title" sortable />
+        <Column header="Description" field="description" sortable />
+        <Column header="Created" field="created" body={dateTemplate} sortable />
+        <Column header="Updated" field="updated" body={dateTemplate} sortable />
+        <Column body={actionsTemplate} />
       </DataTable>
 
       <ConfirmDialog />
+
+      <Dialog
+        header={"Loading..."}
+        visible={loading}
+        closable={false}
+        onHide={() => {}}
+      >
+        <ProgressBar mode="indeterminate" />
+      </Dialog>
     </>
   );
 };

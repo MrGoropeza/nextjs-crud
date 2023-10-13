@@ -8,7 +8,7 @@ type Props = {
   searchParams: { [key: string]: string };
 };
 
-const SSRCRUDPage = async ({ searchParams }: Props) => {
+const SSRCRUDPage = ({ searchParams }: Props) => {
   const urlSearchParams = new URLSearchParams(searchParams);
 
   const page = +(urlSearchParams.get("page") ?? 1);
@@ -23,8 +23,9 @@ const SSRCRUDPage = async ({ searchParams }: Props) => {
   });
 
   return (
-    <section className="p-8" key={Math.random()}>
+    <section className="p-8">
       <Suspense
+        key={Math.random()}
         fallback={
           <TableSkeleton
             rows={rows}
