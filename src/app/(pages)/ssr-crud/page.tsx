@@ -4,6 +4,8 @@ import SSRCrudTable from "./components/Table";
 import TableSkeleton from "./components/TableSkeleton";
 import { getTodos } from "./services/todo.service";
 
+export const fetchCache = "force-no-store";
+
 type Props = {
   searchParams: { [key: string]: string };
 };
@@ -41,7 +43,6 @@ const SSRCRUDPage = ({ searchParams }: Props) => {
 
             return (
               <SSRCrudTable
-                searchParams={searchParams}
                 data={data.records}
                 rows={data.rows}
                 first={first}

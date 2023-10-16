@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { Button } from "primereact/button";
 
 // Error components must be Client Components
@@ -14,6 +15,13 @@ export default function Error({ error, reset }: Props) {
   //   console.error(error);
   // }, [error]);
 
+  const router = useRouter();
+
+  const handleRetry = () => {
+    router.refresh();
+    reset();
+  };
+
   return (
     <section className="flex flex-col gap-4 p-8">
       <h2>Something went wrong!</h2>
@@ -26,7 +34,7 @@ export default function Error({ error, reset }: Props) {
         className="self-end"
         label="Try again"
         severity="danger"
-        onClick={() => reset()}
+        onClick={handleRetry}
       />
     </section>
   );

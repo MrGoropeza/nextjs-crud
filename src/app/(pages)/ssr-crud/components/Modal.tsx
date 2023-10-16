@@ -18,10 +18,11 @@ const Modal = ({ children, todo }: Props) => {
   const shouldShowModal = pathname.includes("/ssr-crud/");
   if (!shouldShowModal) return null;
 
-  const handleHide = async () => {
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
-    router.push(`/ssr-crud?${searchParams.toString()}`);
+  const handleHide = () => {
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
+    router.refresh();
+    router.replace(`/ssr-crud?${searchParams.toString()}`);
   };
 
   return (
