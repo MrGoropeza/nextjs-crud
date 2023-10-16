@@ -2,7 +2,7 @@
 
 import dayjs from "dayjs";
 import { AlertTriangle, Pencil, RefreshCcw, Trash } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { Column, ColumnBodyOptions } from "primereact/column";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
@@ -25,11 +25,9 @@ type Props = {
   totalRecords: number;
   sortField?: string;
   sortOrder?: -1 | 1;
-  searchParams: { [key: string]: string };
 };
 
 const SSRCrudTable = ({
-  searchParams,
   data,
   first,
   rows,
@@ -40,29 +38,35 @@ const SSRCrudTable = ({
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
 
   const dateTemplate = (data: Todo, col: ColumnBodyOptions) =>
     dayjs(data[col.field as keyof Todo]).format("DD/MM/YYYY HH:mm");
 
   const actionsTemplate = (data: Todo) => {
-    const handleEdit = () =>
+    const handleEdit = () => {
+      router.refresh();
       router.push(`/ssr-crud/${data.id}?${params.toString()}`);
+    };
 
     const handleDelete = () =>
       confirmDialog({
         message: "Are you sure you want to delete this item?",
         header: "Confirm",
         icon: <AlertTriangle />,
-        accept: async () => {
+        accept: () => {
           setLoading(true);
 
-          await deleteTodo(data.id).finally(() => setLoading(false));
+          deleteTodo(data.id)
+            .then(() => {
+              location.reload();
+              // router.replace(`/ssr-crud?${params.toString()}`);
+            })
+            .finally(() => setLoading(false));
 
-          await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-          await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
-
-          router.replace(`/ssr-crud?${params.toString()}`);
+          // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+          // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
         },
         reject: () => {},
       });
@@ -87,7 +91,8 @@ const SSRCrudTable = ({
     params.set("page", `${e.first / e.rows + 1}`);
     params.set("rows", `${e.rows}`);
 
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    router.refresh();
     router.replace(`/ssr-crud?${params.toString()}`);
   };
 
@@ -102,13 +107,15 @@ const SSRCrudTable = ({
       params.set("sortOrder", `${e.sortOrder === -1 ? "desc" : "asc"}`);
     }
 
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    router.refresh();
     router.replace(`/ssr-crud?${params.toString()}`);
   };
 
   const handleRefresh = async () => {
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    router.replace(`/ssr-crud?${params.toString()}`);
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    // router.replace(`/ssr-crud?${params.toString()}`);
+    router.refresh();
   };
 
   const handleCreate = async () => {

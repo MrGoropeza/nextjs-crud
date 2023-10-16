@@ -52,8 +52,9 @@ const CrudForm = ({ todo }: Props) => {
       ? await updateTodo(AdapterUpdateTodo(data))
       : await createTodo(AdapterCreateTodo(data));
 
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
+    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
+    router.refresh();
     router.replace(`/ssr-crud?${searchParams.toString()}`);
   };
 
@@ -101,9 +102,10 @@ const CrudForm = ({ todo }: Props) => {
             <Button
               type="button"
               severity="danger"
-              onClick={() =>
-                router.replace(`/ssr-crud?${searchParams.toString()}`)
-              }
+              onClick={() => {
+                router.refresh();
+                router.replace(`/ssr-crud?${searchParams.toString()}`);
+              }}
               label="Cancel"
               loading={formik.isSubmitting}
             />
