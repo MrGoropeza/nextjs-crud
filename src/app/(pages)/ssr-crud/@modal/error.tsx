@@ -14,13 +14,11 @@ export default function Error({ error, reset }: Props) {
   const { showError } = useToast();
   const hideModal = useModalHide();
 
-  console.log("error boundary modal");
-
   useEffect(() => {
     showError("Todo not found");
     hideModal();
     setTimeout(reset, 500);
   }, []);
 
-  return null;
+  return <></>;
 }
