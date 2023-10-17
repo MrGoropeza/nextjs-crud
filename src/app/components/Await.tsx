@@ -4,8 +4,11 @@ interface Props<T> {
 }
 
 const Await = async <T,>({ promise, children }: Props<T>) => {
-  const data = await promise;
-
-  return children(data);
+  try {
+    const data = await promise;
+    return children(data);
+  } catch (error) {
+    throw error;
+  }
 };
 export default Await;

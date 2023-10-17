@@ -1,9 +1,9 @@
 import { getTodo } from "@app/(pages)/ssr-crud/services/todo.service";
 import Await from "@app/components/Await";
 import { Suspense } from "react";
-import ModalSkeleton from "../components/ModalSkeleton";
-import SSRCrudForm from "./components/Form";
-import Modal from "./components/Modal";
+import ModalSkeleton from "../../components/ModalSkeleton";
+import SSRCrudForm from "../components/Form";
+import Modal from "../components/Modal";
 
 interface Props {
   searchParams: { [key: string]: string };
