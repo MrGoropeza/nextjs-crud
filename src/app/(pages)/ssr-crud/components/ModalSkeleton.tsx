@@ -3,14 +3,13 @@
 import { Dialog } from "primereact/dialog";
 import { ProgressBar } from "primereact/progressbar";
 
-const ModalSkeleton = () => {
+interface Props {
+  loadingText?: string;
+}
+
+const ModalSkeleton = ({ loadingText = "Loading..." }: Props) => {
   return (
-    <Dialog
-      header={"Loading todo..."}
-      visible
-      closable={false}
-      onHide={() => {}}
-    >
+    <Dialog header={loadingText} visible closable={false} onHide={() => {}}>
       <ProgressBar mode="indeterminate" />
     </Dialog>
   );

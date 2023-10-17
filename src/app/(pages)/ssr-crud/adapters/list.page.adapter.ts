@@ -1,4 +1,4 @@
-import { ApiListPageResponse, ListPageData } from "../types/list-page.type";
+import { ApiListPageResponse, ListPageData } from "../models/list-page.type";
 
 export function AdapterListPage<ResponseType, AdaptedType>(
   data: ApiListPageResponse<ResponseType>,

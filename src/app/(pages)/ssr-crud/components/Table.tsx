@@ -11,12 +11,12 @@ import {
   DataTablePageEvent,
   DataTableSortEvent,
 } from "primereact/datatable";
-import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-import { ProgressBar } from "primereact/progressbar";
 import { useState } from "react";
+import { useToast } from "../context/toast.context";
+import { Todo } from "../models/todo.type";
 import { deleteTodo } from "../services/todo.service";
-import { Todo } from "../types/todo.type";
+import ModalSkeleton from "./ModalSkeleton";
 
 type Props = {
   data: Todo[];
@@ -35,6 +35,8 @@ const SSRCrudTable = ({
   sortField,
   sortOrder,
 }: Props) => {
+  const { showSuccess, showError } = useToast();
+
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -46,8 +48,19 @@ const SSRCrudTable = ({
 
   const actionsTemplate = (data: Todo) => {
     const handleEdit = () => {
-      router.refresh();
-      router.push(`/ssr-crud/${data.id}?${params.toString()}`);
+      params.set("id", `${data.id}`);
+
+      router.replace(`/ssr-crud?${params.toString()}`);
+    };
+
+    const handleAcceptDelete = () => {
+      setLoading(true);
+
+      deleteTodo(data.id)
+        .then(() => showSuccess("Deleted successfully"))
+        .then(() => router.refresh())
+        .catch(() => showError("Error while deleting. Please try again."))
+        .finally(() => setLoading(false));
     };
 
     const handleDelete = () =>
@@ -55,20 +68,7 @@ const SSRCrudTable = ({
         message: "Are you sure you want to delete this item?",
         header: "Confirm",
         icon: <AlertTriangle />,
-        accept: () => {
-          setLoading(true);
-
-          deleteTodo(data.id)
-            .then(() => {
-              location.reload();
-              // router.replace(`/ssr-crud?${params.toString()}`);
-            })
-            .finally(() => setLoading(false));
-
-          // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-          // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
-        },
-        reject: () => {},
+        accept: handleAcceptDelete,
       });
 
     return (
@@ -87,16 +87,15 @@ const SSRCrudTable = ({
     </header>
   );
 
-  const handlePage = async (e: DataTablePageEvent) => {
+  const handlePage = (e: DataTablePageEvent) => {
     params.set("page", `${e.first / e.rows + 1}`);
     params.set("rows", `${e.rows}`);
 
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    router.refresh();
     router.replace(`/ssr-crud?${params.toString()}`);
+    router.refresh();
   };
 
-  const handleSort = async (e: DataTableSortEvent) => {
+  const handleSort = (e: DataTableSortEvent) => {
     if (!e.sortField && !e.sortOrder) {
       params.delete("sortField");
       params.delete("sortOrder");
@@ -107,19 +106,17 @@ const SSRCrudTable = ({
       params.set("sortOrder", `${e.sortOrder === -1 ? "desc" : "asc"}`);
     }
 
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    router.refresh();
     router.replace(`/ssr-crud?${params.toString()}`);
-  };
-
-  const handleRefresh = async () => {
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    // router.replace(`/ssr-crud?${params.toString()}`);
     router.refresh();
   };
 
-  const handleCreate = async () => {
-    router.replace(`/ssr-crud/create?${params.toString()}`);
+  const handleRefresh = () => {
+    router.refresh();
+  };
+
+  const handleCreate = () => {
+    params.set("id", `create`);
+    router.replace(`/ssr-crud?${params.toString()}`);
   };
 
   return (
@@ -149,14 +146,7 @@ const SSRCrudTable = ({
 
       <ConfirmDialog />
 
-      <Dialog
-        header={"Loading..."}
-        visible={loading}
-        closable={false}
-        onHide={() => {}}
-      >
-        <ProgressBar mode="indeterminate" />
-      </Dialog>
+      {loading && <ModalSkeleton />}
     </>
   );
 };

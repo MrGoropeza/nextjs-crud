@@ -1,73 +1,50 @@
 "use client";
 
 import { Field, FieldProps, Form, Formik } from "formik";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { object, string, type InferType } from "yup";
-import { createTodo, updateTodo } from "../services/todo.service";
-import { ApiCreateTodo, ApiUpdateTodo, Todo } from "../types/todo.type";
-
-const validationSchema = object({
-  id: string(),
-  title: string().required("Required field."),
-  description: string().required("Required field."),
-});
-
-type FormValues = InferType<typeof validationSchema>;
-
-const AdapterUpdateTodo = (data: FormValues): ApiUpdateTodo => {
-  return {
-    id: data.id ?? "",
-    title: data.title,
-    description: data.description,
-  };
-};
-
-const AdapterCreateTodo = (data: FormValues): ApiCreateTodo => {
-  return {
-    title: data.title,
-    description: data.description,
-  };
-};
+import { Todo } from "../../models/todo.type";
+import { createTodo, updateTodo } from "../../services/todo.service";
+import { AdapterCreateTodo, AdapterUpdateTodo } from "../adapters/form.adapter";
+import { useModalHide } from "../hooks/useModalHide";
+import {
+  SSRCrudFormValues,
+  SSRCrudValidationSchema,
+} from "../models/form.model";
 
 interface Props {
   todo?: Todo;
 }
 
-const CrudForm = ({ todo }: Props) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const SSRCrudForm = ({ todo }: Props) => {
+  const handleHide = useModalHide();
 
-  const initialValues: FormValues = {
+  const initialValues: SSRCrudFormValues = {
     id: todo?.id ?? "",
     title: todo?.title ?? "",
     description: todo?.description ?? "",
   };
 
-  const handleSubmit = async (data: FormValues) => {
+  const handleSubmit = async (data: SSRCrudFormValues) => {
     const { id } = data;
 
     id
       ? await updateTodo(AdapterUpdateTodo(data))
       : await createTodo(AdapterCreateTodo(data));
 
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
-    router.refresh();
-    router.replace(`/ssr-crud?${searchParams.toString()}`);
+    handleHide();
   };
 
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={validationSchema}
+      validationSchema={SSRCrudValidationSchema}
       onSubmit={handleSubmit}
     >
       {(formik) => (
         <Form className="grid gap-4">
           <Field name="title">
-            {({ field, form, meta }: FieldProps<string, FormValues>) => (
+            {({ field, form, meta }: FieldProps<string, SSRCrudFormValues>) => (
               <div className="flex flex-col gap-2">
                 <label htmlFor={field.name}>Title</label>
                 <InputText
@@ -83,7 +60,7 @@ const CrudForm = ({ todo }: Props) => {
           </Field>
 
           <Field name="description">
-            {({ field, form, meta }: FieldProps<string, FormValues>) => (
+            {({ field, form, meta }: FieldProps<string, SSRCrudFormValues>) => (
               <div className="flex flex-col gap-2">
                 <label htmlFor={field.name}>Description</label>
                 <InputText
@@ -102,10 +79,7 @@ const CrudForm = ({ todo }: Props) => {
             <Button
               type="button"
               severity="danger"
-              onClick={() => {
-                router.refresh();
-                router.replace(`/ssr-crud?${searchParams.toString()}`);
-              }}
+              onClick={handleHide}
               label="Cancel"
               loading={formik.isSubmitting}
             />
@@ -121,4 +95,4 @@ const CrudForm = ({ todo }: Props) => {
     </Formik>
   );
 };
-export default CrudForm;
+export default SSRCrudForm;
