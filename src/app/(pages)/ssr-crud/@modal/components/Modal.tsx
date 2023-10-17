@@ -1,9 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Dialog } from "primereact/dialog";
 import { ReactNode } from "react";
-import { Todo } from "../types/todo.type";
+import { Todo } from "../../models/todo.type";
+import { useModalHide } from "../hooks/useModalHide";
 
 interface Props {
   children?: ReactNode;
@@ -11,19 +12,12 @@ interface Props {
 }
 
 const Modal = ({ children, todo }: Props) => {
-  const router = useRouter();
+  const handleHide = useModalHide();
+
   const searchParams = useSearchParams();
 
-  const pathname = usePathname();
-  const shouldShowModal = pathname.includes("/ssr-crud/");
+  const shouldShowModal = searchParams.has("id");
   if (!shouldShowModal) return null;
-
-  const handleHide = () => {
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud`);
-    // await fetch(`/api/cache/invalidate-path?path=/(pages)/ssr-crud/[id]`);
-    router.refresh();
-    router.replace(`/ssr-crud?${searchParams.toString()}`);
-  };
 
   return (
     <Dialog

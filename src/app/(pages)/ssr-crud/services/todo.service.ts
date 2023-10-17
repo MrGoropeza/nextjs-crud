@@ -5,8 +5,8 @@ import {
   ApiListPageResponse,
   ListPageData,
   ListPageRequest,
-} from "../types/list-page.type";
-import { ApiCreateTodo, ApiUpdateTodo, Todo } from "../types/todo.type";
+} from "../models/list-page.type";
+import { ApiCreateTodo, ApiUpdateTodo, Todo } from "../models/todo.type";
 
 const API_URL = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? "";
 
@@ -20,11 +20,10 @@ export const getTodos = async ({
   params.set("perPage", `${rows}`);
   params.set("sort", sort ?? "id");
 
-  // await new Promise<Response>((resolve) => setTimeout(resolve, 2000));
+  await new Promise<Response>((resolve) => setTimeout(resolve, 1000));
 
   const res = await fetch(
     `${API_URL}/${ApiEndpoints.Todos}?${params.toString()}`,
-    { cache: "no-cache" },
   );
 
   if (!res.ok) {
@@ -47,9 +46,7 @@ export const getTodos = async ({
 export const getTodo = async (id: string): Promise<Todo> => {
   // await new Promise<Response>((resolve) => setTimeout(resolve, 2000));
 
-  const res = await fetch(`${API_URL}/${ApiEndpoints.Todos}/${id}`, {
-    cache: "no-cache",
-  });
+  const res = await fetch(`${API_URL}/${ApiEndpoints.Todos}/${id}`);
 
   if (!res.ok) {
     let error = {};

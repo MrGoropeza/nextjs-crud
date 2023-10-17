@@ -1,4 +1,4 @@
-import { ApiTodo, Todo } from "../types/todo.type";
+import { ApiTodo, Todo } from "../models/todo.type";
 
 export function AdapterTodo(data: ApiTodo): Todo {
   return {

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import ToastContextProvider from "./context/toast.context";
 
 interface Props {
   modal: ReactNode;
@@ -7,11 +8,9 @@ interface Props {
 
 const SSRCRUDLayout = ({ children, modal }: Props) => {
   return (
-    <>
-      {children}
-
-      {modal}
-    </>
+    <ToastContextProvider>
+      {children} {modal}
+    </ToastContextProvider>
   );
 };
 export default SSRCRUDLayout;
