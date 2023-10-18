@@ -1,5 +1,6 @@
-import { Pencil, Plus, Trash } from "lucide-react";
+import { AlertTriangle, Pencil, Plus, Trash } from "lucide-react";
 import { Button } from "primereact/button";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import {
   DataTablePageEvent,
   DataTableSortEvent,
@@ -15,6 +16,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useToast } from "../context/toast.context";
 import { useAsync } from "../hooks/useAsync";
 import { useDebounce } from "../hooks/useDebounce";
 import { BaseModel } from "../models/interfaces/base.interface";
@@ -39,6 +41,8 @@ interface CrudTableLazyState<Model> {
   removableSort: true;
   header: () => ReactNode;
   emptyMessage: () => ReactNode;
+  paginatorTemplate: string;
+  rowsPerPageOptions: [5, 10, 15];
 }
 
 interface CrudTableModalState {
@@ -47,14 +51,24 @@ interface CrudTableModalState {
   setDialogVisible: Dispatch<SetStateAction<boolean>>;
 }
 
+interface CrudTableSearchState {
+  search: string;
+  setSearch: Dispatch<SetStateAction<string>>;
+  debouncedSearch: string;
+}
+
 interface ChildrenProps<Model> {
   tableState: CrudTableLazyState<Model>;
   modalState: CrudTableModalState;
+  searchState: CrudTableSearchState;
   criteria: ListPageCriteria;
   setCriteria: Dispatch<SetStateAction<ListPageCriteria>>;
   error: unknown | null;
   defaultActionsTemplate: (data: Model) => ReactNode;
   refreshTable: () => void;
+  handleCreate: () => void;
+  handleDelete: (id: string | number) => void;
+  handleEdit: (id: string | number) => void;
 }
 
 interface Props<Model extends BaseModel> {
@@ -93,9 +107,12 @@ export const CrudTable = <Model extends BaseModel>({
   children,
   initialState = INITIAL_STATE,
 }: Props<Model>) => {
+  const { showSuccess, showError } = useToast();
+
   const [criteria, setCriteria] = useState<ListPageCriteria>(initialState);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 600);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [id, setId] = useState<string>();
@@ -141,16 +158,60 @@ export const CrudTable = <Model extends BaseModel>({
     fetchData(criteria);
   };
 
+  const handleCreate = () => {
+    setId(undefined);
+    setDialogVisible(true);
+  };
+
+  const handleEdit = (id: string | number) => {
+    setId(`${id}`);
+    setDialogVisible(true);
+  };
+
+  const handleDelete = (id: string | number) => {
+    confirmDialog({
+      message: "Are you sure you want to delete this item?",
+      header: "Confirm",
+      icon: <AlertTriangle />,
+      accept: () => {
+        setIsDeleting(true);
+
+        api
+          .deleteOne(`${id}`)
+          .then(() => {
+            showSuccess("Deleted successfully");
+            refreshTable();
+          })
+          .catch(() => showError("Error while deleting. Please try again."))
+          .finally(() => setIsDeleting(false));
+      },
+    });
+  };
+
+  const defaultActionsTemplate = (data: Model) => {
+    return (
+      <div className="flex gap-2">
+        <Button
+          severity="info"
+          icon={<Pencil />}
+          onClick={() => handleEdit(data.id)}
+        />
+        <Button
+          severity="danger"
+          icon={<Trash />}
+          onClick={() => handleDelete(data.id)}
+        />
+      </div>
+    );
+  };
+
   const defaultHeaderTemplate = () => (
     <header className="grid grid-cols-[auto_1fr_auto] gap-4">
       <Button
         label="Create"
         severity="success"
         icon={<Plus />}
-        onClick={() => {
-          setId(undefined);
-          setDialogVisible(true);
-        }}
+        onClick={handleCreate}
       />
       <InputText
         className="col-[3]"
@@ -176,26 +237,6 @@ export const CrudTable = <Model extends BaseModel>({
     );
   };
 
-  const defaultActionsTemplate = (data: Model) => {
-    return (
-      <div className="flex gap-2">
-        <Button
-          severity="info"
-          icon={<Pencil />}
-          onClick={() => {
-            setId(`${data.id}`);
-            setDialogVisible(true);
-          }}
-        />
-        <Button
-          severity="danger"
-          icon={<Trash />}
-          onClick={() => setDialogVisible(true)}
-        />
-      </div>
-    );
-  };
-
   const multiSortMeta = criteria.query.sorts.map<DataTableSortMeta>((sort) => ({
     field: sort.propertyName,
     order: sort.descending ? -1 : 1,
@@ -206,7 +247,7 @@ export const CrudTable = <Model extends BaseModel>({
     first: data?.start ?? 0,
     rows: data?.length ?? INITIAL_STATE.length,
     totalRecords: data?.count ?? 0,
-    loading,
+    loading: loading || isDeleting,
     onPage: handlePage,
     onSort: handleSort,
     multiSortMeta: multiSortMeta,
@@ -216,12 +257,21 @@ export const CrudTable = <Model extends BaseModel>({
     removableSort: true,
     header: defaultHeaderTemplate,
     emptyMessage: defaultEmptyTemplate,
+    paginatorTemplate:
+      "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown",
+    rowsPerPageOptions: [5, 10, 15],
   };
 
   const modalState: CrudTableModalState = {
     id,
     dialogVisible,
     setDialogVisible,
+  };
+
+  const searchState: CrudTableSearchState = {
+    search,
+    setSearch,
+    debouncedSearch: debouncedSearch ?? "",
   };
 
   return (
@@ -236,12 +286,18 @@ export const CrudTable = <Model extends BaseModel>({
       {children({
         tableState,
         modalState,
+        searchState,
         error,
         defaultActionsTemplate,
         criteria,
         setCriteria,
         refreshTable,
+        handleCreate,
+        handleDelete,
+        handleEdit,
       })}
+
+      <ConfirmDialog />
     </CrudTableContext.Provider>
   );
 };

@@ -10,6 +10,7 @@ export interface BaseApiType<Model extends BaseModel> {
   list: (criteria: ListPageCriteria) => Promise<ListPageResponse<Model>>;
   update: (id: string, data: Partial<Model>) => Promise<Partial<Model>>;
   create: (data: Partial<Model>) => Promise<Partial<Model>>;
+  deleteOne: (id: string) => Promise<void>;
 }
 
 interface BaseApiOptions {
@@ -146,5 +147,31 @@ export const BaseApi = <Model extends BaseModel>(
     return data;
   };
 
-  return { get, list, update, create };
+  const deleteOne = async (id: string): Promise<void> => {
+    const deleteOptions = options?.delete;
+
+    const res = await fetch(
+      `${API_URL}/${
+        deleteOptions?.customEndpoint
+          ? `${deleteOptions.customEndpoint.replace("{id}", id)}`
+          : `${endpoint}/${id}`
+      }`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (!res.ok) {
+      try {
+        const error = await res.json();
+        throw error;
+      } catch (e: any) {
+        throw { code: res.status, ...e };
+      }
+    }
+
+    return;
+  };
+
+  return { get, list, update, create, deleteOne };
 };

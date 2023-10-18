@@ -36,14 +36,7 @@ const ClientCRUD = () => {
         }) => {
           return (
             <>
-              <DataTable
-                {...tableState}
-                dataKey="id"
-                rowsPerPageOptions={[5, 10, 15]}
-                paginatorTemplate={
-                  "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                }
-              >
+              <DataTable {...tableState} dataKey="id">
                 <Column header="ID" field="id" sortable />
                 <Column header="Title" field="title" sortable />
                 <Column header="Description" field="description" sortable />
