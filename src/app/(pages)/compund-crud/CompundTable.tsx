@@ -3,21 +3,24 @@
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { CrudTable } from "./CrudTable/CrudTable";
+import { ListPageCriteria } from "./CrudTable/models/list.model";
 import { ListResponse, Todo, TodoApi } from "./services/todo.api";
 
 interface Props {
   data: ListResponse<Todo>;
+  query: ListPageCriteria;
 }
 
-const CompoundTable = ({ data }: Props) => {
+const CompoundTable = ({ data, query }: Props) => {
   const api = TodoApi();
 
   return (
-    <CrudTable data={data} api={api}>
-      {/* Custom Header */}
-      {/* <CrudTable.Header>
-        <p>Im Header</p>
-      </CrudTable.Header> */}
+    <CrudTable api={api} data={data} query={query}>
+      <CrudTable.Header className="grid grid-cols-[auto_1fr_auto_auto] gap-4">
+        <CrudTable.Header.CreateButton />
+        <CrudTable.Header.FiltersButton className="col-[3]" />
+        <CrudTable.Header.SearchInput className="col-[4]" />
+      </CrudTable.Header>
 
       <CrudTable.Table>
         {({ tableState, actionsTemplate }) => (
@@ -30,14 +33,23 @@ const CompoundTable = ({ data }: Props) => {
         )}
       </CrudTable.Table>
 
-      {/* Custom Actions */}
-      {/* <CrudTable.Actions>
-        {(row) => (
-          <p>
-            {row.id} - {row.title}
-          </p>
+      <CrudTable.Actions className="flex gap-2">
+        {(row, { crudActions: { onEdit, onDelete } }) => (
+          <>
+            <CrudTable.Actions.EditButton onClick={() => onEdit(row)} />
+            <CrudTable.Actions.DeleteButton onClick={() => onDelete(row)} />
+          </>
         )}
-      </CrudTable.Actions> */}
+      </CrudTable.Actions>
+
+      <CrudTable.Form>
+        {(row) => (
+          <>
+            <p>El form</p>
+            <pre>{JSON.stringify(row, null, 2)}</pre>
+          </>
+        )}
+      </CrudTable.Form>
 
       <CrudTable.Filters>
         <p>Im Filters</p>

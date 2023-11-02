@@ -1,17 +1,21 @@
 import { createContext, useContext } from "react";
 import { ListResponse } from "../../services/todo.api";
 
-interface CrudTableContextValue {
+export interface CrudTableContextValue {
   templates: {
-    header?: React.ReactNode;
-    actions?: (row: any) => React.ReactNode;
+    header: React.ReactNode;
+    actions: (row: any) => React.ReactNode;
     filters?: React.ReactNode;
-    defaultHeaderTemplate: React.ReactNode;
-    defaultActionsTemplate: (row: any) => React.ReactNode;
   };
   filtersState: {
     visible: boolean;
     setVisible: (visible: boolean) => void;
+  };
+  crudActions: {
+    onCreate: () => void;
+    onFilter: () => void;
+    onEdit: (row: any) => void;
+    onDelete: (row: any) => void;
   };
   data: ListResponse<any>;
 }
@@ -22,8 +26,14 @@ export const CrudTableContext = createContext<CrudTableContextValue>({
     setVisible: () => {},
   },
   templates: {
-    defaultHeaderTemplate: <></>,
-    defaultActionsTemplate: () => <></>,
+    header: <></>,
+    actions: () => <></>,
+  },
+  crudActions: {
+    onEdit: () => {},
+    onDelete: () => {},
+    onCreate: () => {},
+    onFilter: () => {},
   },
   data: {
     items: [],

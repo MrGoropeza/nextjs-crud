@@ -1,45 +1,60 @@
 import { Filter, Plus } from "lucide-react";
-import { Button } from "primereact/button";
-import { InputText } from "primereact/inputtext";
-import { ReactNode } from "react";
-import { useCrudTableContext } from "../context/CrudTableContext";
+import { Button, ButtonProps } from "primereact/button";
+import { InputText, InputTextProps } from "primereact/inputtext";
+import { ComponentProps, ReactNode } from "react";
+import {
+  CrudTableContextValue,
+  useCrudTableContext,
+} from "../context/CrudTableContext";
 
-interface DefaultHeaderProps {
-  onCreate: () => void;
-  onFilter: () => void;
-  onSearch: () => void;
+export interface HeaderProps
+  extends Omit<ComponentProps<"header">, "children"> {
+  children: ReactNode | ((ctx: CrudTableContextValue) => ReactNode);
 }
 
-export const CrudTableDefaultHeaderTemplate = ({
-  onCreate,
-  onFilter,
-  onSearch,
-}: DefaultHeaderProps) => {
+const Header = ({ children, ...rest }: HeaderProps) => {
+  const context = useCrudTableContext();
+
   return (
-    <header className="grid grid-cols-[auto_1fr_auto_auto] gap-4">
-      <Button
-        label="Create"
-        severity="success"
-        icon={<Plus />}
-        onClick={onCreate}
-      />
-
-      <Button className="col-[3]" icon={<Filter />} onClick={onFilter} />
-
-      <InputText className="col-[4]" placeholder="Search..." />
+    <header {...rest}>
+      {typeof children === "function" ? children(context) : children}
     </header>
   );
 };
 
-export interface HeaderProps {
-  children?: ReactNode;
-}
-
-const Header = ({ children }: HeaderProps) => {
+const CreateButton = ({ ...rest }: ButtonProps) => {
   const {
-    templates: { defaultHeaderTemplate },
+    crudActions: { onCreate },
   } = useCrudTableContext();
 
-  return <>{children ?? defaultHeaderTemplate}</>;
+  return (
+    <Button
+      label="Create"
+      icon={<Plus />}
+      severity="success"
+      {...rest}
+      onClick={onCreate}
+    />
+  );
 };
+
+const FiltersButton = ({ ...rest }: ButtonProps) => {
+  const {
+    crudActions: { onFilter },
+  } = useCrudTableContext();
+
+  return <Button icon={<Filter />} {...rest} onClick={onFilter} />;
+};
+
+const SearchInput = ({ ...rest }: InputTextProps) => {
+  const {
+    crudActions: {},
+  } = useCrudTableContext();
+  return <InputText placeholder="Search..." {...rest} />;
+};
+
+Header.CreateButton = CreateButton;
+Header.FiltersButton = FiltersButton;
+Header.SearchInput = SearchInput;
+
 export default Header;
