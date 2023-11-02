@@ -3,9 +3,10 @@
 import { AlertTriangle } from "lucide-react";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Dialog } from "primereact/dialog";
-import { ReactElement, ReactNode, useState } from "react";
+import { ReactElement, useState } from "react";
 import { BaseApi, ListResponse } from "../services/todo.api";
 import Actions, { ActionsProps } from "./components/Actions";
+import Filters, { FiltersProps } from "./components/Filters";
 import Form, { FormProps } from "./components/Form";
 import Header, { HeaderProps } from "./components/Header";
 import Table, { TableProps } from "./components/Table";
@@ -19,10 +20,6 @@ interface CrudTableProps {
   data: ListResponse<any>;
   api: BaseApi;
   query: ListPageCriteria;
-}
-
-interface FiltersProps {
-  children?: ReactNode;
 }
 
 export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
@@ -118,10 +115,6 @@ export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
       )}
     </CrudTableContextProvider>
   );
-};
-
-export const Filters = ({ children }: FiltersProps) => {
-  return <>{children}</>;
 };
 
 CrudTable.Table = Table;

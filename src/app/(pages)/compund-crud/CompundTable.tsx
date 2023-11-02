@@ -52,7 +52,11 @@ const CompoundTable = ({ data, query }: Props) => {
       </CrudTable.Form>
 
       <CrudTable.Filters>
-        <p>Im Filters</p>
+        <CrudTable.Filters.Text name="filter1" initialValue="" />
+        <CrudTable.Filters.Number name="filter2" initialValue="" />
+        <CrudTable.Filters.Date name="filter3" initialValue="" />
+        <CrudTable.Filters.Boolean name="filter4" initialValue="" />
+        <CrudTable.Filters.Dropdown name="filter5" initialValue="" />
       </CrudTable.Filters>
     </CrudTable>
   );
