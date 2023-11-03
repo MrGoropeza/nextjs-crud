@@ -14,6 +14,8 @@ interface Props {
 const CompoundTable = ({ data, query }: Props) => {
   const api = TodoApi();
 
+  const dropdownOptions = ["1st", "2nd", "3rd"];
+
   return (
     <CrudTable api={api} data={data} query={query}>
       <CrudTable.Header className="grid grid-cols-[auto_1fr_auto_auto] gap-4">
@@ -51,12 +53,12 @@ const CompoundTable = ({ data, query }: Props) => {
         )}
       </CrudTable.Form>
 
-      <CrudTable.Filters className="flex flex-col gap-4" debugValues>
+      <CrudTable.Filters className="flex flex-col gap-4">
         <CrudTable.Filters.Text name="filter1" />
         <CrudTable.Filters.Number name="filter2" />
         <CrudTable.Filters.Date name="filter3" />
         <CrudTable.Filters.Boolean name="filter4" />
-        <CrudTable.Filters.Dropdown name="filter5" />
+        <CrudTable.Filters.Dropdown name="filter5" options={dropdownOptions} />
       </CrudTable.Filters>
     </CrudTable>
   );
