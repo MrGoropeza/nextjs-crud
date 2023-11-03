@@ -6,7 +6,7 @@ import { Dialog } from "primereact/dialog";
 import { ReactElement, useState } from "react";
 import { BaseApi, ListResponse } from "../services/todo.api";
 import Actions, { ActionsProps } from "./components/Actions";
-import Filters, { FiltersProps } from "./components/Filters";
+import Filters, { FiltersProps } from "./components/Filters/Filters";
 import Form, { FormProps } from "./components/Form";
 import Header, { HeaderProps } from "./components/Header";
 import Table, { TableProps } from "./components/Table";

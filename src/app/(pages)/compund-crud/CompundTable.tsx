@@ -51,12 +51,12 @@ const CompoundTable = ({ data, query }: Props) => {
         )}
       </CrudTable.Form>
 
-      <CrudTable.Filters>
-        <CrudTable.Filters.Text name="filter1" initialValue="" />
-        <CrudTable.Filters.Number name="filter2" initialValue="" />
-        <CrudTable.Filters.Date name="filter3" initialValue="" />
-        <CrudTable.Filters.Boolean name="filter4" initialValue="" />
-        <CrudTable.Filters.Dropdown name="filter5" initialValue="" />
+      <CrudTable.Filters className="flex flex-col gap-4" debugValues>
+        <CrudTable.Filters.Text name="filter1" />
+        <CrudTable.Filters.Number name="filter2" />
+        <CrudTable.Filters.Date name="filter3" />
+        <CrudTable.Filters.Boolean name="filter4" />
+        <CrudTable.Filters.Dropdown name="filter5" />
       </CrudTable.Filters>
     </CrudTable>
   );
