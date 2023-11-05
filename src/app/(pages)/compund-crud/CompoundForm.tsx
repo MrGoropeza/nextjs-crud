@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InferType, number, object, string } from "yup";
+import { useToast } from "../ssr-crud/context/toast.context";
 import { useCrudTableContext } from "./CrudTable/context/CrudTableContext";
 import { UtherTodo } from "./models/todo.model";
 import { ApiEndpoints, BaseApi } from "./services/base.api";
@@ -23,6 +24,7 @@ interface Props {
 
 const CompoundForm = ({ row }: Props) => {
   const router = useRouter();
+  const { showError, showSuccess } = useToast();
   const { create, update } = BaseApi<UtherTodo>(ApiEndpoints.Todos);
   const {
     formState: { setVisible, setClosable },
@@ -39,11 +41,18 @@ const CompoundForm = ({ row }: Props) => {
 
     const todo = Object.assign({} as UtherTodo, values);
 
-    values.todoId ? await update(todo) : await create(todo);
+    const submitPromise = values.todoId ? update(todo) : create(todo);
 
-    setVisible(false);
-    setClosable(true);
-    router.refresh();
+    await submitPromise
+      .then(() => {
+        showSuccess("Todo saved successfully.");
+        setVisible(false);
+        setClosable(true);
+        router.refresh();
+      })
+      .catch(() => {
+        showError("Error saving todo. Please try again.");
+      });
   };
 
   const handleCancel = () => {

@@ -82,7 +82,7 @@ export const PUT = async <BodyType = unknown, ReturnType = unknown>(
 export const DELETE = async <ReturnType = unknown>(
   endpoint: string,
   options?: Omit<RequestInit, "method">,
-): Promise<ReturnType> => {
+): Promise<Response> => {
   const response = await fetch(endpoint, {
     ...options,
     method: "DELETE",
@@ -101,5 +101,5 @@ export const DELETE = async <ReturnType = unknown>(
     }
   }
 
-  return await response.json();
+  return response;
 };

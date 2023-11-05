@@ -1,11 +1,13 @@
 "use client";
 
+import { useToast } from "@app/(pages)/ssr-crud/context/toast.context";
 import { AlertTriangle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Dialog } from "primereact/dialog";
 import { ReactElement, useState } from "react";
 import { ListPageCriteria, ListPageResponse } from "../models/list.model";
-import { BaseApi } from "../services/todo.api";
+import { BaseApiType } from "../services/base.api";
 import Actions, { ActionsProps } from "./components/Actions";
 import Filters, { FiltersProps } from "./components/Filters/Filters";
 import Form, { FormProps } from "./components/Form";
@@ -18,16 +20,28 @@ interface CrudTableProps {
     TableProps | ActionsProps | FiltersProps | HeaderProps | FormProps
   >[];
   data: ListPageResponse<any>;
-  api: BaseApi;
+  api: BaseApiType<any>;
   query: ListPageCriteria;
+  modelId: string;
 }
 
-export const Crud = ({ data, query, api, children }: CrudTableProps) => {
+export const Crud = ({
+  data,
+  query,
+  api,
+  modelId,
+  children,
+}: CrudTableProps) => {
+  const router = useRouter();
+  const { showError, showSuccess } = useToast();
+
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const [formVisible, setFormVisible] = useState(false);
   const [formClosable, setFormClosable] = useState(true);
   const [selectedRow, setSelectedRow] = useState<any>();
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const TableComponent = children.find((child) => child.type === Table);
   const HeaderComponent = children.find((child) => child.type === Header);
@@ -74,11 +88,16 @@ export const Crud = ({ data, query, api, children }: CrudTableProps) => {
       header: "Confirm",
       icon: <AlertTriangle />,
       accept: () => {
-        api.delete(`${row.id}`).then(() => {
-          // showSuccess("Deleted successfully");
-        });
-        // .catch(() => showError("Error while deleting. Please try again."))
-        // .finally(() => setLoading(false));
+        setDeleteLoading(true);
+
+        api
+          .deleteOne(`${row[modelId]}`)
+          .then(() => {
+            showSuccess("Deleted successfully");
+            router.refresh();
+          })
+          .catch(() => showError("Error while deleting. Please try again."))
+          .finally(() => setDeleteLoading(false));
       },
     });
   };

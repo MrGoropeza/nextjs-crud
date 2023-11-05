@@ -6,7 +6,7 @@ import CompoundForm from "./CompoundForm";
 import { Crud } from "./CrudTable/CrudTable";
 import { ListPageCriteria, ListPageResponse } from "./models/list.model";
 import { UtherTodo } from "./models/todo.model";
-import { TodoApi } from "./services/todo.api";
+import { ApiEndpoints, BaseApi } from "./services/base.api";
 
 interface Props {
   data: ListPageResponse<UtherTodo>;
@@ -14,12 +14,12 @@ interface Props {
 }
 
 const CompoundTable = ({ data, query }: Props) => {
-  const api = TodoApi();
+  const api = BaseApi<UtherTodo>(ApiEndpoints.Todos);
 
   const dropdownOptions = ["1st", "2nd", "3rd"];
 
   return (
-    <Crud api={api} data={data} query={query}>
+    <Crud modelId="todoId" api={api} data={data} query={query}>
       <Crud.Header className="grid grid-cols-[auto_1fr_auto_auto] gap-4">
         <Crud.Header.CreateButton />
         <Crud.Header.FiltersButton className="col-[3]" />

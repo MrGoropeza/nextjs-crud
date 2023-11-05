@@ -28,8 +28,6 @@ const CompoundPage = async ({ searchParams }: Props) => {
   return (
     <section className="p-8">
       <CompoundTable data={response} query={query} />
-
-      {/* <pre>{JSON.stringify(response, null, 2)}</pre> */}
     </section>
   );
 };
