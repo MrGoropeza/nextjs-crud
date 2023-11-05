@@ -1,8 +1,11 @@
 "use client";
 
-import { Form, Formik, FormikProps } from "formik";
+import { FilterCriterionType } from "@app/(pages)/compund-crud/models/list.model";
+import { Form, Formik } from "formik";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "primereact/button";
-import { ComponentProps, ReactElement, useRef, useState } from "react";
+import { ComponentProps, ReactElement } from "react";
+import { useCrudTableContext } from "../../context/CrudTableContext";
 import BooleanFilter, { BooleanFilterProps } from "./BooleanFilter";
 import DateFilter, { DateFilterProps } from "./DateFilter";
 import DropdownFilter, { DropdownFilterProps } from "./DropdownFilter";
@@ -23,17 +26,31 @@ export interface FiltersProps
 }
 
 const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const urlSearchParams = useSearchParams();
+
+  const {
+    criteria,
+    filtersState: { setVisible },
+  } = useCrudTableContext();
+
   const handleChild = (filter: ReactElement<FilterProps>) => {
     const defaultType = "eq";
+    const defaultInitialValue = null;
 
-    let defaultInitialValue: any = null;
+    const currentFilters = criteria.query.filters ?? [];
 
-    if (filter.type === TextFilter) defaultInitialValue = "";
+    const appliedFilter = currentFilters.find(
+      (item) => item.propertyName === filter.props.name,
+    );
 
     return {
       [filter.props.name]: {
-        value: filter.props.initialValue ?? defaultInitialValue,
-        type: filter.props.initialType ?? defaultType,
+        value: appliedFilter?.value || defaultInitialValue,
+        type: appliedFilter?.type || (filter.props.initialType ?? defaultType),
+        from: appliedFilter?.from || defaultInitialValue,
+        to: appliedFilter?.to || defaultInitialValue,
       },
     };
   };
@@ -45,24 +62,60 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
       ? handleChild(children)
       : {};
 
-  const [appliedFilters, setAppliedFilters] = useState(initialValues);
+  const handleSubmit = (values: typeof initialValues) => {
+    const searchParams = new URLSearchParams(urlSearchParams);
 
-  const formRef = useRef<FormikProps<typeof initialValues>>(null);
+    const filters = Object.entries(values)
+      .map(([key, { value, type, from, to }]) => {
+        return {
+          propertyName: key,
+          value: type !== "between" ? value : "",
+          type,
+          from: type === "between" ? from : null,
+          to: type === "between" ? to : null,
+        };
+      })
+      .filter(
+        (item) =>
+          (item.type !== "between" && item.value !== null) ||
+          (item.type === "between" && item.from !== null && item.to !== null),
+      );
 
-  // useEffect(() => {
-  //   const values = formRef.current?.values ?? {};
+    const newCriteria = {
+      ...criteria,
+      query: { ...criteria.query, filters },
+    };
 
-  //   setAppliedFilters(values);
-  // }, []);
+    searchParams.set("query", btoa(JSON.stringify(newCriteria.query)));
+    router.replace(`${pathname}?${searchParams.toString()}`);
+    router.refresh();
+
+    setVisible(false);
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
 
   return (
-    <Formik
-      innerRef={formRef}
-      initialValues={initialValues}
-      onSubmit={() => {}}
-    >
+    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
       {(formik) => {
-        const handleCancel = () => formik.setValues(appliedFilters);
+        const handleReset = () => {
+          const resetedValues = Object.keys(formik.values)
+            .map<{
+              [x: string]: {
+                value: null;
+                type: FilterCriterionType;
+                from: null;
+                to: null;
+              };
+            }>((key) => ({
+              [key]: { value: null, type: "eq", from: null, to: null },
+            }))
+            .reduce((acc, curr) => ({ ...acc, ...curr }));
+
+          formik.setValues(resetedValues);
+        };
 
         return (
           <Form {...rest}>
@@ -70,7 +123,12 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
             {debugValues && <pre>{JSON.stringify(formik.values, null, 2)}</pre>}
 
             <div className="flex justify-end gap-2">
-              <Button label="Reset" type="reset" severity="danger" />
+              <Button
+                label="Reset"
+                type="button"
+                severity="danger"
+                onClick={handleReset}
+              />
               <Button
                 label="Cancel"
                 type="button"

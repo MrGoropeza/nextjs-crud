@@ -32,12 +32,14 @@ export type FilterCriterionType =
   | "lte"
   | "like"
   | "contains"
-  | "between";
+  | "between"
+  | "startswith"
+  | "endswith";
 
 export interface FilterCriterion<T = any> {
   propertyName: string & keyof T;
   type: FilterCriterionType;
-  value: number | string | boolean | Date;
+  value?: number | string | boolean | Date;
   from?: number | Date;
   to?: number | Date;
 

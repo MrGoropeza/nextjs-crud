@@ -17,7 +17,7 @@ const filterValidator = array(
         "between",
       ])
       .required(),
-    value: string().required(),
+    value: string(),
   }),
 );
 

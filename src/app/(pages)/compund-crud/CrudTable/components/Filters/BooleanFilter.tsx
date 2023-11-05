@@ -12,15 +12,10 @@ const BOOLEAN_FILTER_TYPES: SelectItem[] = [
 
 export interface BooleanFilterProps extends Omit<InputSwitchProps, "checked"> {
   name: string;
-  initialValue?: boolean;
   initialType?: BooleanFilterType;
 }
 
-const BooleanFilter = ({
-  name,
-  initialValue = false,
-  ...rest
-}: BooleanFilterProps) => {
+const BooleanFilter = ({ name, ...rest }: BooleanFilterProps) => {
   return (
     <div className="flex gap-4">
       <Field name={`${name}.type`}>

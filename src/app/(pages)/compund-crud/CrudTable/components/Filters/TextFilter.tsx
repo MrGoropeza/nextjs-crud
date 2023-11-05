@@ -32,16 +32,10 @@ const TEXT_FILTER_TYPES: SelectItem[] = [
 
 export interface TextFilterProps extends InputTextProps {
   name: string;
-  initialValue?: string;
   initialType?: FilterType;
 }
 
-const TextFilter = ({
-  name,
-  initialValue = "",
-  initialType = "eq",
-  ...rest
-}: TextFilterProps) => {
+const TextFilter = ({ name, initialType = "eq", ...rest }: TextFilterProps) => {
   return (
     <div className="flex gap-4">
       <Field name={`${name}.type`}>
