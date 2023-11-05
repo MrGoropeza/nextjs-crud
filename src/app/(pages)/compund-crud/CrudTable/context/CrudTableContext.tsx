@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { ListPageResponse } from "../../models/list.model";
+import { ListPageCriteria, ListPageResponse } from "../../models/list.model";
 
 export interface CrudTableContextValue {
   templates: {
@@ -24,6 +24,7 @@ export interface CrudTableContextValue {
     onDelete: (row: any) => void;
   };
   data: ListPageResponse<any>;
+  criteria: ListPageCriteria;
 }
 
 export const CrudTableContext = createContext<CrudTableContextValue>({
@@ -52,6 +53,15 @@ export const CrudTableContext = createContext<CrudTableContextValue>({
     count: 0,
     start: 0,
     length: 5,
+  },
+  criteria: {
+    start: 0,
+    length: 5,
+    query: {
+      filters: [],
+      sorts: [],
+      search: "",
+    },
   },
 });
 

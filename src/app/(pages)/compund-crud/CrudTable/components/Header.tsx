@@ -9,7 +9,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { useCrudCriteria } from "../../hooks/useCrudCriteria";
 import { QueryCriteria } from "../../models/list.model";
 import {
   CrudTableContextValue,
@@ -62,7 +61,7 @@ const SearchInput = ({ ...rest }: InputTextProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const urlSearchParams = useSearchParams();
-  const criteria = useCrudCriteria(urlSearchParams);
+  const { criteria } = useCrudTableContext();
   const searchParams = new URLSearchParams(urlSearchParams);
 
   const debouncingTimeout = useRef<NodeJS.Timeout | null>(null);

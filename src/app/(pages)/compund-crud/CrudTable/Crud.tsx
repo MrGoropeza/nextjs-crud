@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Dialog } from "primereact/dialog";
 import { ReactElement, useState } from "react";
-import { ListPageResponse } from "../models/list.model";
+import { ListPageCriteria, ListPageResponse } from "../models/list.model";
 import { BaseApiType } from "../services/base.api";
 import Actions, { ActionsProps } from "./components/Actions";
 import Filters, { FiltersProps } from "./components/Filters/Filters";
@@ -21,12 +21,14 @@ interface CrudTableProps<T> {
   >[];
   data: ListPageResponse<T>;
   api: BaseApiType<T>;
+  criteria: ListPageCriteria;
   modelId: string & keyof T;
 }
 
 export const Crud = <T,>({
   data,
   api,
+  criteria,
   modelId,
   children,
 }: CrudTableProps<T>) => {
@@ -109,7 +111,14 @@ export const Crud = <T,>({
 
   return (
     <CrudTableContextProvider
-      value={{ data, filtersState, templates, crudActions, formState }}
+      value={{
+        data,
+        criteria,
+        filtersState,
+        templates,
+        crudActions,
+        formState,
+      }}
     >
       {TableComponent}
 

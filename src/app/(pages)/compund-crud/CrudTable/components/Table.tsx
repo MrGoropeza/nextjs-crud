@@ -5,7 +5,6 @@ import {
   DataTableSortEvent,
 } from "primereact/datatable";
 import { ReactNode, useMemo } from "react";
-import { useCrudCriteria } from "../../hooks/useCrudCriteria";
 import { QueryCriteria } from "../../models/list.model";
 import { useCrudTableContext } from "../context/CrudTableContext";
 import { CrudTablePaginatorTemplate } from "./PaginatorTemplate";
@@ -24,13 +23,12 @@ const Table = ({ children }: TableProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const urlSearchParams = useSearchParams();
-  const actualCriteria = useCrudCriteria(urlSearchParams);
-
   const searchParams = new URLSearchParams(urlSearchParams);
 
   const {
     templates: { actions, header },
     data,
+    criteria,
   } = useCrudTableContext();
 
   const handlePage = (e: DataTablePageEvent) => {
@@ -44,7 +42,7 @@ const Table = ({ children }: TableProps) => {
 
   const handleSort = (e: DataTableSortEvent) => {
     const newQuery: QueryCriteria = {
-      ...actualCriteria.query,
+      ...criteria.query,
       sorts:
         e.multiSortMeta?.map((sort) => ({
           propertyName: sort.field,
@@ -69,7 +67,7 @@ const Table = ({ children }: TableProps) => {
       paginator: true,
       removableSort: true,
       sortMode: "multiple",
-      multiSortMeta: actualCriteria.query.sorts.map((sort) => ({
+      multiSortMeta: criteria.query.sorts.map((sort) => ({
         field: sort.propertyName,
         order: sort.descending ? -1 : 1,
       })),
@@ -80,7 +78,7 @@ const Table = ({ children }: TableProps) => {
       onPage: handlePage,
       onSort: handleSort,
     }),
-    [data, actualCriteria],
+    [data, criteria],
   );
 
   return children({
