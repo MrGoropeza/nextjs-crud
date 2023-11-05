@@ -4,49 +4,57 @@ import { AlertTriangle } from "lucide-react";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Dialog } from "primereact/dialog";
 import { ReactElement, useState } from "react";
-import { BaseApi, ListResponse } from "../services/todo.api";
+import { ListPageCriteria, ListPageResponse } from "../models/list.model";
+import { BaseApi } from "../services/todo.api";
 import Actions, { ActionsProps } from "./components/Actions";
 import Filters, { FiltersProps } from "./components/Filters/Filters";
 import Form, { FormProps } from "./components/Form";
 import Header, { HeaderProps } from "./components/Header";
 import Table, { TableProps } from "./components/Table";
 import { CrudTableContextProvider } from "./context/CrudTableContext";
-import { ListPageCriteria } from "./models/list.model";
 
 interface CrudTableProps {
   children: ReactElement<
     TableProps | ActionsProps | FiltersProps | HeaderProps | FormProps
   >[];
-  data: ListResponse<any>;
+  data: ListPageResponse<any>;
   api: BaseApi;
   query: ListPageCriteria;
 }
 
-export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
+export const Crud = ({ data, query, api, children }: CrudTableProps) => {
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const [formVisible, setFormVisible] = useState(false);
+  const [formClosable, setFormClosable] = useState(true);
   const [selectedRow, setSelectedRow] = useState<any>();
 
-  const tableTemplate = children.find((child) => child.type === Table);
-  const headerTemplate = children.find((child) => child.type === Header);
-  const actionsTemplate = children.find((child) => child.type === Actions);
-  const filtersTemplate = children.find((child) => child.type === Filters);
-  const formTemplate = children.find((child) => child.type === Form);
+  const TableComponent = children.find((child) => child.type === Table);
+  const HeaderComponent = children.find((child) => child.type === Header);
+  const ActionsComponent = children.find((child) => child.type === Actions);
+  const FiltersComponent = children.find((child) => child.type === Filters);
+  const FormComponent = children.find((child) => child.type === Form);
 
   const filtersState = {
     visible: filtersVisible,
     setVisible: setFiltersVisible,
   };
 
+  const formState = {
+    visible: formVisible,
+    setVisible: setFormVisible,
+    closable: formClosable,
+    setClosable: setFormClosable,
+  };
+
   const templates = {
-    header: headerTemplate,
-    actions: actionsTemplate
+    header: HeaderComponent,
+    actions: ActionsComponent
       ? (row: any) => (
-          <actionsTemplate.type {...actionsTemplate.props} row={row} />
+          <ActionsComponent.type {...ActionsComponent.props} row={row} />
         )
       : () => <></>,
-    filters: filtersTemplate,
+    filters: FiltersComponent,
   };
 
   const handleCreateButton = () => {
@@ -84,9 +92,9 @@ export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
 
   return (
     <CrudTableContextProvider
-      value={{ data, filtersState, templates, crudActions }}
+      value={{ data, filtersState, templates, crudActions, formState }}
     >
-      {tableTemplate}
+      {TableComponent}
 
       <ConfirmDialog />
 
@@ -97,7 +105,7 @@ export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
         resizable={false}
         onHide={() => setFiltersVisible(false)}
       >
-        {filtersTemplate}
+        {FiltersComponent}
       </Dialog>
 
       {formVisible && (
@@ -106,10 +114,11 @@ export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
           visible
           draggable={false}
           resizable={false}
+          closable={formClosable}
           onHide={() => setFormVisible(false)}
         >
-          {formTemplate && (
-            <formTemplate.type {...formTemplate.props} row={selectedRow} />
+          {FormComponent && (
+            <FormComponent.type {...FormComponent.props} row={selectedRow} />
           )}
         </Dialog>
       )}
@@ -117,8 +126,8 @@ export const CrudTable = ({ data, query, api, children }: CrudTableProps) => {
   );
 };
 
-CrudTable.Table = Table;
-CrudTable.Actions = Actions;
-CrudTable.Filters = Filters;
-CrudTable.Header = Header;
-CrudTable.Form = Form;
+Crud.Table = Table;
+Crud.Actions = Actions;
+Crud.Filters = Filters;
+Crud.Header = Header;
+Crud.Form = Form;

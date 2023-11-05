@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { ListResponse } from "../../services/todo.api";
+import { ListPageResponse } from "../../models/list.model";
 
 export interface CrudTableContextValue {
   templates: {
@@ -11,19 +11,31 @@ export interface CrudTableContextValue {
     visible: boolean;
     setVisible: (visible: boolean) => void;
   };
+  formState: {
+    visible: boolean;
+    setVisible: (visible: boolean) => void;
+    closable: boolean;
+    setClosable: (closable: boolean) => void;
+  };
   crudActions: {
     onCreate: () => void;
     onFilter: () => void;
     onEdit: (row: any) => void;
     onDelete: (row: any) => void;
   };
-  data: ListResponse<any>;
+  data: ListPageResponse<any>;
 }
 
 export const CrudTableContext = createContext<CrudTableContextValue>({
   filtersState: {
     visible: false,
     setVisible: () => {},
+  },
+  formState: {
+    visible: false,
+    setVisible: () => {},
+    closable: true,
+    setClosable: () => {},
   },
   templates: {
     header: <></>,
@@ -36,11 +48,10 @@ export const CrudTableContext = createContext<CrudTableContextValue>({
     onFilter: () => {},
   },
   data: {
-    items: [],
-    page: 1,
-    perPage: 5,
-    totalItems: 0,
-    totalPages: 0,
+    data: [],
+    count: 0,
+    start: 0,
+    length: 5,
   },
 });
 

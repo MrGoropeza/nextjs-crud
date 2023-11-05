@@ -1,13 +1,16 @@
 import CompoundTable from "./CompundTable";
-import { ListPageCriteria } from "./CrudTable/models/list.model";
-import { TodoApi } from "./services/todo.api";
+import { ListPageCriteria } from "./models/list.model";
+import { UtherTodo } from "./models/todo.model";
+import { ApiEndpoints, BaseApi } from "./services/base.api";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   searchParams: { [key: string]: string };
 }
 
 const CompoundPage = async ({ searchParams }: Props) => {
-  const { list } = TodoApi();
+  const { list } = BaseApi<UtherTodo>(ApiEndpoints.Todos);
 
   const params = new URLSearchParams(searchParams);
 
@@ -20,7 +23,7 @@ const CompoundPage = async ({ searchParams }: Props) => {
     query: { sorts: [], filters: [], search: "" },
   };
 
-  const response = await list(page, rows, []);
+  const response = await list(query);
 
   return (
     <section className="p-8">

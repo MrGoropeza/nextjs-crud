@@ -35,10 +35,10 @@ const Table = ({ children }: TableProps) => {
   };
 
   const tableState: DataTableProps<any> = {
-    value: data.items ?? [],
-    first: (data.page - 1) * data.perPage,
-    rows: data.perPage ?? 5,
-    totalRecords: data.totalItems,
+    value: data.data ?? [],
+    first: data.start,
+    rows: data.length ?? 5,
+    totalRecords: data.count,
     lazy: true,
     paginator: true,
     paginatorTemplate: CrudTablePaginatorTemplate,
