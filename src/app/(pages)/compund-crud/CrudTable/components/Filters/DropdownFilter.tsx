@@ -10,12 +10,12 @@ const DROPDOWN_FILTER_TYPES: SelectItem[] = [
 ];
 
 export interface DropdownFilterProps extends DropdownProps {
-  name: string;
+  field: string;
   initialType?: DropdownFilterType;
 }
 
 const DropdownFilter = ({
-  name,
+  field: name,
   initialType = "eq",
   ...rest
 }: DropdownFilterProps) => {

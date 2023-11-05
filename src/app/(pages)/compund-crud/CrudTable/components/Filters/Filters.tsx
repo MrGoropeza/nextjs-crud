@@ -37,16 +37,18 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
 
   const handleChild = (filter: ReactElement<FilterProps>) => {
     const defaultType = "eq";
-    const defaultInitialValue = null;
+    let defaultInitialValue = null;
+
+    if (filter.type === TextFilter) defaultInitialValue = "";
 
     const currentFilters = criteria.query.filters ?? [];
 
     const appliedFilter = currentFilters.find(
-      (item) => item.propertyName === filter.props.name,
+      (item) => item.propertyName === filter.props.field,
     );
 
     return {
-      [filter.props.name]: {
+      [filter.props.field]: {
         value: appliedFilter?.value || defaultInitialValue,
         type: appliedFilter?.type || (filter.props.initialType ?? defaultType),
         from: appliedFilter?.from || defaultInitialValue,
@@ -69,7 +71,7 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
       .map(([key, { value, type, from, to }]) => {
         return {
           propertyName: key,
-          value: type !== "between" ? value : "",
+          value: type !== "between" ? (value === "" ? null : value) : "",
           type,
           from: type === "between" ? from : null,
           to: type === "between" ? to : null,
@@ -101,16 +103,21 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
     <Formik initialValues={initialValues} onSubmit={handleSubmit}>
       {(formik) => {
         const handleReset = () => {
-          const resetedValues = Object.keys(formik.values)
+          const resetedValues = Object.entries(formik.values)
             .map<{
               [x: string]: {
-                value: null;
+                value: null | string;
                 type: FilterCriterionType;
                 from: null;
                 to: null;
               };
-            }>((key) => ({
-              [key]: { value: null, type: "eq", from: null, to: null },
+            }>(([key, value]) => ({
+              [key]: {
+                value: typeof value.value === "string" ? "" : null,
+                type: "eq",
+                from: null,
+                to: null,
+              },
             }))
             .reduce((acc, curr) => ({ ...acc, ...curr }));
 
@@ -120,7 +127,6 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
         return (
           <Form {...rest}>
             {children}
-            {debugValues && <pre>{JSON.stringify(formik.values, null, 2)}</pre>}
 
             <div className="flex justify-end gap-2">
               <Button
@@ -137,6 +143,8 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
               />
               <Button label="Apply" type="submit" severity="success" />
             </div>
+
+            {debugValues && <pre>{JSON.stringify(formik.values, null, 2)}</pre>}
           </Form>
         );
       }}

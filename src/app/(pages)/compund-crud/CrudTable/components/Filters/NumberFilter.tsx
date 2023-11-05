@@ -18,13 +18,13 @@ const NUMBER_FILTER_TYPES: SelectItem[] = [
 ];
 
 export interface NumberFilterProps extends InputNumberProps {
-  name: string;
-  initialType?: NumberFilterType;
+  field: string;
   label: string;
+  initialType?: NumberFilterType;
 }
 
 const NumberFilter = ({
-  name,
+  field,
   initialType = "eq",
   label,
   className,
@@ -36,18 +36,18 @@ const NumberFilter = ({
 
   return (
     <div className="grid-cols[auto_1fr] grid gap-x-4 gap-y-2">
-      <label className="col-span-2" htmlFor={`${name}.value`}>
+      <label className="col-span-2" htmlFor={`${field}.value`}>
         {label}
       </label>
 
-      <Field name={`${name}.type`}>
+      <Field name={`${field}.type`}>
         {({ field }: FieldProps) => (
           <Dropdown options={NUMBER_FILTER_TYPES} {...field} />
         )}
       </Field>
 
-      {values[name].type !== "between" && (
-        <Field name={`${name}.value`}>
+      {values[field].type !== "between" && (
+        <Field name={`${field}.value`}>
           {({ field, form }: FieldProps) => (
             <InputNumber
               className={className}
@@ -59,9 +59,9 @@ const NumberFilter = ({
         </Field>
       )}
 
-      {values[name].type === "between" && (
+      {values[field].type === "between" && (
         <>
-          <Field name={`${name}.from`}>
+          <Field name={`${field}.from`}>
             {({ field, form }: FieldProps) => (
               <InputNumber
                 className={`${className} col-[2]`}
@@ -73,7 +73,7 @@ const NumberFilter = ({
             )}
           </Field>
 
-          <Field name={`${name}.to`}>
+          <Field name={`${field}.to`}>
             {({ field, form }: FieldProps) => (
               <InputNumber
                 className={`${className} col-[2]`}

@@ -5,12 +5,12 @@ import { Dropdown } from "primereact/dropdown";
 import { InputText, InputTextProps } from "primereact/inputtext";
 import { SelectItem } from "primereact/selectitem";
 
-type FilterType = "contains" | "startswith" | "endswith" | "eq" | "neq";
+type FilterType = "like" | "startswith" | "endswith" | "eq" | "neq";
 
 const TEXT_FILTER_TYPES: SelectItem[] = [
   {
     label: "Contains",
-    value: "contains",
+    value: "like",
   },
   {
     label: "Starts with",
@@ -31,20 +31,30 @@ const TEXT_FILTER_TYPES: SelectItem[] = [
 ];
 
 export interface TextFilterProps extends InputTextProps {
-  name: string;
+  field: string;
+  label: string;
   initialType?: FilterType;
 }
 
-const TextFilter = ({ name, initialType = "eq", ...rest }: TextFilterProps) => {
+const TextFilter = ({
+  field,
+  label,
+  initialType = "eq",
+  ...rest
+}: TextFilterProps) => {
   return (
-    <div className="flex gap-4">
-      <Field name={`${name}.type`}>
+    <div className="grid-cols[auto_1fr] grid gap-x-4 gap-y-2">
+      <label className="col-span-2" htmlFor={`${field}.value`}>
+        {label}
+      </label>
+
+      <Field name={`${field}.type`}>
         {({ field }: FieldProps) => (
           <Dropdown options={TEXT_FILTER_TYPES} {...field} />
         )}
       </Field>
 
-      <Field name={`${name}.value`}>
+      <Field name={`${field}.value`}>
         {({ field }: FieldProps) => <InputText {...rest} {...field} />}
       </Field>
     </div>

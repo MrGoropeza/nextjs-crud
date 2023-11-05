@@ -16,20 +16,24 @@ const DATE_FILTER_TYPES: SelectItem[] = [
 ];
 
 export interface DateFilterProps extends CalendarProps {
-  name: string;
+  field: string;
   initialType?: DateFilterType;
 }
 
-const DateFilter = ({ name, initialType = "eq", ...rest }: DateFilterProps) => {
+const DateFilter = ({
+  field,
+  initialType = "eq",
+  ...rest
+}: DateFilterProps) => {
   return (
     <div className="flex gap-4">
-      <Field name={`${name}.type`}>
+      <Field name={`${field}.type`}>
         {({ field }: FieldProps) => (
           <Dropdown options={DATE_FILTER_TYPES} {...field} />
         )}
       </Field>
 
-      <Field name={`${name}.value`}>
+      <Field name={`${field}.value`}>
         {({ field }: FieldProps) => <Calendar {...rest} {...field} />}
       </Field>
     </div>
