@@ -4,7 +4,7 @@ import {
   DataTableProps,
   DataTableSortEvent,
 } from "primereact/datatable";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { useCrudCriteria } from "../../hooks/useCrudCriteria";
 import { QueryCriteria } from "../../models/list.model";
 import { useCrudTableContext } from "../context/CrudTableContext";
@@ -59,26 +59,29 @@ const Table = ({ children }: TableProps) => {
     router.refresh();
   };
 
-  const tableState: DataTableProps<any> = {
-    value: data.data ?? [],
-    first: data.start,
-    rows: data.length ?? 5,
-    totalRecords: data.count,
-    lazy: true,
-    paginator: true,
-    removableSort: true,
-    sortMode: "multiple",
-    multiSortMeta: actualCriteria.query.sorts.map((sort) => ({
-      field: sort.propertyName,
-      order: sort.descending ? -1 : 1,
-    })),
-    paginatorTemplate: CrudTablePaginatorTemplate,
-    header: header,
-    rowsPerPageOptions: [1, 5, 10, 25, 50],
-    emptyMessage: "No records found",
-    onPage: handlePage,
-    onSort: handleSort,
-  };
+  const tableState: DataTableProps<any> = useMemo(
+    () => ({
+      value: data.data ?? [],
+      first: data.start,
+      rows: data.length ?? 5,
+      totalRecords: data.count,
+      lazy: true,
+      paginator: true,
+      removableSort: true,
+      sortMode: "multiple",
+      multiSortMeta: actualCriteria.query.sorts.map((sort) => ({
+        field: sort.propertyName,
+        order: sort.descending ? -1 : 1,
+      })),
+      paginatorTemplate: CrudTablePaginatorTemplate,
+      header: header,
+      rowsPerPageOptions: [1, 5, 10, 25, 50],
+      emptyMessage: "No records found",
+      onPage: handlePage,
+      onSort: handleSort,
+    }),
+    [data, actualCriteria],
+  );
 
   return children({
     tableState,
