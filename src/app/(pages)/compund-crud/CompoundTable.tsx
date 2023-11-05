@@ -89,6 +89,7 @@ const CompoundTable = ({ data, criteria }: Props) => {
         <Crud.Filters.Text field="description" label="Description" />
         {/* <Crud.Filters.Date name="createdAt" />
         <Crud.Filters.Date name="updatedAt" /> */}
+        <Crud.Filters.Boolean field="done" label="Done" />
       </Crud.Filters>
     </Crud>
   );

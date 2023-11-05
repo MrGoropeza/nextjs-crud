@@ -1,7 +1,7 @@
 import { Field, FieldProps } from "formik";
 import { Dropdown } from "primereact/dropdown";
-import { InputSwitch, InputSwitchProps } from "primereact/inputswitch";
 import { SelectItem } from "primereact/selectitem";
+import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 type BooleanFilterType = "eq" | "neq";
 
@@ -10,14 +10,30 @@ const BOOLEAN_FILTER_TYPES: SelectItem[] = [
   { label: "Not Equals", value: "neq" },
 ];
 
-export interface BooleanFilterProps extends Omit<InputSwitchProps, "checked"> {
+export interface BooleanFilterProps
+  extends Omit<
+    TriStateCheckbox,
+    | "focus"
+    | "getElement"
+    | "props"
+    | "context"
+    | "setState"
+    | "forceUpdate"
+    | "render"
+    | "state"
+    | "refs"
+  > {
   field: string;
+  label: string;
   initialType?: BooleanFilterType;
 }
 
-const BooleanFilter = ({ field, ...rest }: BooleanFilterProps) => {
+const BooleanFilter = ({ field, label, ...rest }: BooleanFilterProps) => {
   return (
-    <div className="flex gap-4">
+    <div className="grid-cols[auto_1fr] grid gap-x-4 gap-y-2">
+      <label className="col-span-2" htmlFor={`${field}.value`}>
+        {label}
+      </label>
       <Field name={`${field}.type`}>
         {({ field }: FieldProps) => (
           <Dropdown options={BOOLEAN_FILTER_TYPES} {...field} />
@@ -26,7 +42,12 @@ const BooleanFilter = ({ field, ...rest }: BooleanFilterProps) => {
 
       <Field name={`${field}.value`}>
         {({ field }: FieldProps) => (
-          <InputSwitch {...rest} {...field} checked={field.value} />
+          <TriStateCheckbox
+            {...rest}
+            id={field.name}
+            value={field.value}
+            onChange={field.onChange}
+          />
         )}
       </Field>
     </div>

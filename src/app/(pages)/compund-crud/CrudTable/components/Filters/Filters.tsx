@@ -49,10 +49,10 @@ const Filters = ({ children, debugValues, ...rest }: FiltersProps) => {
 
     return {
       [filter.props.field]: {
-        value: appliedFilter?.value || defaultInitialValue,
-        type: appliedFilter?.type || (filter.props.initialType ?? defaultType),
-        from: appliedFilter?.from || defaultInitialValue,
-        to: appliedFilter?.to || defaultInitialValue,
+        value: appliedFilter?.value ?? defaultInitialValue,
+        type: appliedFilter?.type ?? filter.props.initialType ?? defaultType,
+        from: appliedFilter?.from ?? defaultInitialValue,
+        to: appliedFilter?.to ?? defaultInitialValue,
       },
     };
   };
