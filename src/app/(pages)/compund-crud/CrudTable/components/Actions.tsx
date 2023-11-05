@@ -8,15 +8,20 @@ import {
   useCrudTableContext,
 } from "../context/CrudTableContext";
 
-export interface ActionsProps extends Omit<ComponentProps<"div">, "children"> {
-  row?: any;
-  children: (row: any, context: CrudTableContextValue) => ReactNode;
+export interface ActionsProps<T>
+  extends Omit<ComponentProps<"div">, "children"> {
+  row?: T;
+  children: (row: T, context: CrudTableContextValue) => ReactNode;
 }
 
-const Actions = ({ row, children, ...rest }: ActionsProps) => {
+const Actions = <T extends unknown = any>({
+  row,
+  children,
+  ...rest
+}: ActionsProps<T>) => {
   const context = useCrudTableContext();
 
-  return <div {...rest}>{children(row, context)}</div>;
+  return <div {...rest}>{children(row ?? ({} as T), context)}</div>;
 };
 
 const EditButton = ({ ...rest }: ButtonProps) => {

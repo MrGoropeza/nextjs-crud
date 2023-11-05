@@ -15,23 +15,23 @@ import Header, { HeaderProps } from "./components/Header";
 import Table, { TableProps } from "./components/Table";
 import { CrudTableContextProvider } from "./context/CrudTableContext";
 
-interface CrudTableProps {
+interface CrudTableProps<T> {
   children: ReactElement<
-    TableProps | ActionsProps | FiltersProps | HeaderProps | FormProps
+    TableProps | ActionsProps<T> | FiltersProps | HeaderProps | FormProps
   >[];
-  data: ListPageResponse<any>;
-  api: BaseApiType<any>;
+  data: ListPageResponse<T>;
+  api: BaseApiType<T>;
   query: ListPageCriteria;
-  modelId: string;
+  modelId: string & keyof T;
 }
 
-export const Crud = ({
+export const Crud = <T,>({
   data,
   query,
   api,
   modelId,
   children,
-}: CrudTableProps) => {
+}: CrudTableProps<T>) => {
   const router = useRouter();
   const { showError, showSuccess } = useToast();
 
@@ -39,7 +39,7 @@ export const Crud = ({
 
   const [formVisible, setFormVisible] = useState(false);
   const [formClosable, setFormClosable] = useState(true);
-  const [selectedRow, setSelectedRow] = useState<any>();
+  const [selectedRow, setSelectedRow] = useState<T>();
 
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -64,7 +64,7 @@ export const Crud = ({
   const templates = {
     header: HeaderComponent,
     actions: ActionsComponent
-      ? (row: any) => (
+      ? (row: T) => (
           <ActionsComponent.type {...ActionsComponent.props} row={row} />
         )
       : () => <></>,
@@ -78,11 +78,11 @@ export const Crud = ({
   const handleFilterButton = () => {
     setFiltersVisible(true);
   };
-  const handleEditButton = (row: any) => {
+  const handleEditButton = (row: T) => {
     setSelectedRow(row);
     setFormVisible(true);
   };
-  const handleDeleteButton = (row: any) => {
+  const handleDeleteButton = (row: T) => {
     confirmDialog({
       message: "Are you sure you want to delete this item?",
       header: "Confirm",

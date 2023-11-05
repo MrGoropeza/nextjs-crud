@@ -19,7 +19,7 @@ const CompoundTable = ({ data, query }: Props) => {
   const dropdownOptions = ["1st", "2nd", "3rd"];
 
   return (
-    <Crud modelId="todoId" api={api} data={data} query={query}>
+    <Crud<UtherTodo> modelId="todoId" api={api} data={data} query={query}>
       <Crud.Header className="grid grid-cols-[auto_1fr_auto_auto] gap-4">
         <Crud.Header.CreateButton />
         <Crud.Header.FiltersButton className="col-[3]" />
@@ -37,7 +37,7 @@ const CompoundTable = ({ data, query }: Props) => {
         )}
       </Crud.Table>
 
-      <Crud.Actions className="flex gap-2">
+      <Crud.Actions className="flex max-w-min gap-2">
         {(row, { crudActions: { onEdit, onDelete } }) => (
           <>
             <Crud.Actions.EditButton onClick={() => onEdit(row)} />
