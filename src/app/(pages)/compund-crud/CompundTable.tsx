@@ -4,22 +4,21 @@ import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import CompoundForm from "./CompoundForm";
 import { Crud } from "./CrudTable/CrudTable";
-import { ListPageCriteria, ListPageResponse } from "./models/list.model";
+import { ListPageResponse } from "./models/list.model";
 import { UtherTodo } from "./models/todo.model";
 import { ApiEndpoints, BaseApi } from "./services/base.api";
 
 interface Props {
   data: ListPageResponse<UtherTodo>;
-  query: ListPageCriteria;
 }
 
-const CompoundTable = ({ data, query }: Props) => {
+const CompoundTable = ({ data }: Props) => {
   const api = BaseApi<UtherTodo>(ApiEndpoints.Todos);
 
   const dropdownOptions = ["1st", "2nd", "3rd"];
 
   return (
-    <Crud<UtherTodo> modelId="todoId" api={api} data={data} query={query}>
+    <Crud<UtherTodo> modelId="todoId" api={api} data={data}>
       <Crud.Header className="grid grid-cols-[auto_1fr_auto_auto] gap-4">
         <Crud.Header.CreateButton />
         <Crud.Header.FiltersButton className="col-[3]" />
@@ -29,9 +28,9 @@ const CompoundTable = ({ data, query }: Props) => {
       <Crud.Table>
         {({ tableState, actionsTemplate }) => (
           <DataTable {...tableState}>
-            <Column header="ID" field="todoId" />
-            <Column header="Title" field="title" />
-            <Column header="Description" field="description" />
+            <Column header="ID" field="todoId" sortable />
+            <Column header="Title" field="title" sortable />
+            <Column header="Description" field="description" sortable />
             <Column header="Actions" body={actionsTemplate} />
           </DataTable>
         )}
