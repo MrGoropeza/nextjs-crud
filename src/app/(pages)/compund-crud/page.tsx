@@ -24,7 +24,7 @@ const CompoundPage = async ({ searchParams }: Props) => {
 
   return (
     <section className="p-8">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading...</div>} key={Math.random()}>
         <Await promise={listPromise}>
           {(data) => <CompoundTable data={data} criteria={criteria} />}
         </Await>

@@ -83,12 +83,12 @@ const CompoundTable = ({ data, criteria }: Props) => {
 
       <Crud.Form>{(row) => <CompoundForm row={row} />}</Crud.Form>
 
-      <Crud.Filters className="grid grid-cols-1 gap-4" debugValues>
+      <Crud.Filters className="grid grid-cols-1 gap-4">
         <Crud.Filters.Number field="todoId" label="ID" />
         <Crud.Filters.Text field="title" label="Title" />
         <Crud.Filters.Text field="description" label="Description" />
-        {/* <Crud.Filters.Date name="createdAt" />
-        <Crud.Filters.Date name="updatedAt" /> */}
+        <Crud.Filters.Date field="createdAt" label="CreatedAt" />
+        <Crud.Filters.Date field="updatedAt" label="UpdatedAt" />
         <Crud.Filters.Boolean field="done" label="Done" />
       </Crud.Filters>
     </Crud>

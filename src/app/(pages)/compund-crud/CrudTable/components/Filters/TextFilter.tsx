@@ -55,7 +55,9 @@ const TextFilter = ({
       </Field>
 
       <Field name={`${field}.value`}>
-        {({ field }: FieldProps) => <InputText {...rest} {...field} />}
+        {({ field }: FieldProps) => (
+          <InputText {...rest} {...field} value={field.value ?? ""} />
+        )}
       </Field>
     </div>
   );
